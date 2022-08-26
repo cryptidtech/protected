@@ -1,0 +1,20 @@
+[package]
+authors = ["Mike Lodder <redmike7@gmail.com>"]
+categories = []
+description = "This crate implements a wrapper around a secret that is stored in memory."
+documentation = "https://docs.rs/protected"
+edition = "2021"
+homepage = "https://github.com/cryptidtech/protected"
+keywords = ["cryptography", "memory"]
+license-file = "LICENSE"
+name = "protected"
+readme = "README.md"
+version = "0.1.0"
+
+[features]
+
+[dependencies]
+chacha20poly1305 = "0.10"
+merlin = "3"
+rand = "0.8"
+zeroize = "1.5"
