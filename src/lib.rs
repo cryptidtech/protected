@@ -8,21 +8,11 @@
 //! The pre_key and nonce are feed into a merlin transcript to mix with other data
 //! and derive the actual encryption key. This value is wiped from memory when the dropped
 //! or decrypted.
-#![deny(
-    warnings,
-    missing_docs,
-    unsafe_code,
-    dead_code,
-)]
+#![deny(warnings, missing_docs, unsafe_code, dead_code)]
 
-use chacha20poly1305::{
-    KeyInit,
-    aead::AeadInPlace,
-    Key, XChaCha20Poly1305, XNonce,
-};
+use chacha20poly1305::{aead::AeadInPlace, Key, KeyInit, XChaCha20Poly1305, XNonce};
 use rand::RngCore;
 use zeroize::Zeroize;
-
 
 const BUF_SIZE: usize = 16 * 1024;
 
@@ -42,6 +32,16 @@ pub struct Protected {
     nonce: [u8; BUF_SIZE],
     /// The encrypted value
     value: Vec<u8>,
+}
+
+impl Default for Protected {
+    fn default() -> Self {
+        Self {
+            pre_key: [0u8; BUF_SIZE],
+            nonce: [0u8; BUF_SIZE],
+            value: Vec::new(),
+        }
+    }
 }
 
 impl Protected {
@@ -72,7 +72,7 @@ impl Protected {
         aad.extend_from_slice(&self.pre_key);
         aad.extend_from_slice(&self.nonce);
         cipher
-            .encrypt_in_place(&nonce, &aad, &mut self.value)
+            .encrypt_in_place(nonce, &aad, &mut self.value)
             .unwrap();
         output.zeroize();
     }
@@ -90,7 +90,7 @@ impl Protected {
         let mut aad = Vec::with_capacity(2 * BUF_SIZE);
         aad.extend_from_slice(&self.pre_key);
         aad.extend_from_slice(&self.nonce);
-        match cipher.decrypt_in_place(&nonce, &aad, &mut self.value) {
+        match cipher.decrypt_in_place(nonce, &aad, &mut self.value) {
             Err(_) => None,
             Ok(_) => {
                 self.pre_key.zeroize();
